@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace Laboratory_1
 {
@@ -92,6 +93,29 @@ namespace Laboratory_1
         }
 
         private void gaussianToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GaussianFilter filter = new GaussianFilter();
+            Bitmap result = filter.processImage(image, backgroundWorker1);
+            pictureBox1.Image = result;
+            pictureBox1.Refresh();
+        }
+
+        private void backgroundWorker1_ProgressChanged_1(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar1.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted_1(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (!e.Cancelled)
+            {
+                pictureBox1.Image = image;
+                pictureBox1.Refresh();
+            }
+            progressBar1.Value = 0;
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
         {
 
         }
