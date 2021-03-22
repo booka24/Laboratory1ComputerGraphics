@@ -1,0 +1,10 @@
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\bin\Debug\Laboratory 1.exe.config
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\bin\Debug\Laboratory 1.exe
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\bin\Debug\Laboratory 1.pdb
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\obj\Debug\Laboratory 1.csprojAssemblyReference.cache
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\obj\Debug\Laboratory_1.Form1.resources
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\obj\Debug\Laboratory_1.Properties.Resources.resources
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\obj\Debug\Laboratory 1.csproj.GenerateResource.cache
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\obj\Debug\Laboratory 1.csproj.CoreCompileInputs.cache
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\obj\Debug\Laboratory 1.exe
+C:\Users\javie\source\repos\Laboratory 1\Laboratory 1\obj\Debug\Laboratory 1.pdb
