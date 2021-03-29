@@ -11,8 +11,7 @@ namespace Laboratory_1
     abstract class Filters
     {
         protected abstract Color calculateNewPixelColor(Bitmap sourceImage, int x, int y);
-        public Bitmap processImage(Bitmap sourceImage, BackgroundWorker worker)
-
+        virtual public Bitmap processImage(Bitmap sourceImage, BackgroundWorker worker)
         {
             Bitmap resultImage = new Bitmap(sourceImage.Width, sourceImage.Height);
             for (int i = 0; i < sourceImage.Width; i++)
@@ -178,15 +177,8 @@ namespace Laboratory_1
     {
         public SharpnessFilter()
         {
-            float[,] res = new float[,] { { 0, -1, 0 }, { -1, 5, -1 }, { 0, -1, 0 } };
+            kernel = new float[3,3]{ { 0, -1, 0 }, { -1, 5, -1 }, { 0, -1, 0 } };
 
-        }
-        public void createSharpnessKernel(float[,] res)
-        {
-            kernel = new float[3, 3];
-            for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; j++)
-                    kernel[i, j] = res[i, j];
         }
     }
     class SepiaFilter : Filters
@@ -226,6 +218,208 @@ namespace Laboratory_1
             return sourceImage.GetPixel(Clamp((int)(x + 20 * Math.Sin(2 * Math.PI * y / 60)), 0, sourceImage.Width - 1), y);
         }
 
+    }
+
+    class Morphology : Filters
+    {
+        protected int[,] Matrix;
+        protected Morphology() { }
+        protected override Color calculateNewPixelColor(Bitmap sourceImage, int i, int j)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    class Dilation : Morphology
+    {
+        public Dilation()
+        {
+            Matrix = new int[3, 3] { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
+        }
+        protected override Color calculateNewPixelColor(Bitmap sourceImage, int x, int y)
+        {
+            int X = Matrix.GetLength(0) / 2;
+            int Y = Matrix.GetLength(1) / 2;
+
+            float R = 0, G = 0,B = 0;
+            for (int l = -Y; l <= Y; ++l)
+                for (int k = -X; k <= X; ++k)
+                {
+                    int idX = Clamp(x + k, 0, sourceImage.Width - 1);
+                    int idY = Clamp(y + l, 0, sourceImage.Height - 1);
+                    Color neighborColor = sourceImage.GetPixel(idX, idY);
+                    if ((Matrix[k + X, l + Y] == 1) && (neighborColor.R > R))
+                        R = neighborColor.R;
+                    if ((Matrix[k + X, l + Y] == 1) && (neighborColor.G > G))
+                        G = neighborColor.G;
+                    if ((Matrix[k + X, l + Y] == 1) && (neighborColor.B > B))
+                        B = neighborColor.B;
+                }
+            return Color.FromArgb(Clamp((int)R, 0, 255),Clamp((int)G, 0, 255),Clamp((int)B, 0, 255));
+        }
+    }
+    class Erosion : Morphology
+    {
+        public Erosion()
+        {
+            Matrix = new int[3, 3] { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
+        }
+        protected override Color calculateNewPixelColor(Bitmap sourceImage, int x, int y)
+        {
+            int X = Matrix.GetLength(0) / 2;
+            int Y = Matrix.GetLength(1) / 2;
+
+            float R, G, B;
+            R = G = B = 255;
+
+            for (int l = -Y; l <= Y; ++l)
+                for (int k = -X; k <= X; ++k)
+                {
+                    int idX = Clamp(x + k, 0, sourceImage.Width - 1);
+                    int idY = Clamp(y + l, 0, sourceImage.Height - 1);
+                    Color neighborColor = sourceImage.GetPixel(idX, idY);
+                    if ((Matrix[k + X, l + Y] == 1) && (neighborColor.R < R))
+                        R = neighborColor.R;
+                    if ((Matrix[k + X, l + Y] == 1) && (neighborColor.G < G))
+                        G = neighborColor.G;
+                    if ((Matrix[k + X, l + Y] == 1) && (neighborColor.B < B))
+                        B = neighborColor.B;
+                }
+            return Color.FromArgb(Clamp((int)R, 0, 255), Clamp((int)G, 0, 255), Clamp((int)B, 0, 255));
+
+        }
+    }
+    class Opening : Morphology
+    {
+        public Opening()
+        {
+            Matrix = new int[3, 3] { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
+        }
+        public override Bitmap processImage(Bitmap sourceImage, BackgroundWorker worker)
+        {
+            Bitmap resultImage = sourceImage;
+            Filters filter = new Erosion();
+            resultImage = filter.processImage(resultImage, worker);
+            filter = new Dilation();
+            resultImage = filter.processImage(resultImage, worker);
+            return resultImage;
+        }
+    }
+    class Closing : Morphology
+    {
+        public Closing()
+        {
+            Matrix = new int[3, 3] { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
+        }
+
+        public override Bitmap processImage(Bitmap sourceImage, BackgroundWorker worker)
+        {
+            Bitmap resultImage = sourceImage;
+            Filters filter = new Dilation();
+            resultImage = filter.processImage(resultImage, worker);
+            filter = new Erosion();
+            resultImage = filter.processImage(resultImage, worker);
+            return resultImage;
+        }
+    }
+    class Grad : Morphology
+    {
+        public Grad()
+        {
+            Matrix = new int[3, 3] { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
+        }
+
+        public override Bitmap processImage(Bitmap sourceImage, BackgroundWorker worker)
+        {
+            Bitmap resultImage = sourceImage;
+            Bitmap tmp1 = sourceImage;
+            Bitmap tmp2 = sourceImage;
+            Filters filter = new Dilation();
+            tmp1 = filter.processImage(tmp1, worker);
+            filter = new Erosion();
+            tmp2 = filter.processImage(tmp2, worker);
+
+            for (int i = 0; i < sourceImage.Width; i++)
+            {
+                for (int j = 0; j < sourceImage.Height; j++)
+                {
+                    int r = Clamp(tmp1.GetPixel(i, j).R - tmp2.GetPixel(i, j).R, 0, 255);
+                    int g = Clamp(tmp1.GetPixel(i, j).G - tmp2.GetPixel(i, j).G, 0, 255);
+                    int b = Clamp(tmp1.GetPixel(i, j).B - tmp2.GetPixel(i, j).B, 0, 255);
+
+                    resultImage.SetPixel(i, j, Color.FromArgb(r, g, b));
+                }
+            }
+
+            return resultImage;
+        }
+    }
+    class Correcting : Filters
+    {
+        private Color color;
+        public Correcting(Color _color)
+        {
+            color = _color;
+        }
+        protected override Color calculateNewPixelColor(Bitmap sourceImage, int x, int y)
+        {
+            Color sourceColor = sourceImage.GetPixel(x, y); //src
+            int R, G, B;
+
+            if (color.R == 0)
+                R = sourceColor.R;
+            else
+                R = sourceColor.R * (255 / color.R);
+
+            if (color.G == 0)
+                G = sourceColor.G;
+            else
+                G = sourceColor.G * (255 / color.G);
+
+            if (color.B == 0)
+                B = sourceColor.B;
+            else
+                B = sourceColor.B * (255 / color.B);
+
+            Color resultColor = Color.FromArgb(Clamp(R, 0, 255), Clamp(G, 0, 255), Clamp(B, 0, 255));
+            return resultColor;
+        }
+    }
+    class MedianFilter : Filters
+    {
+
+        public MedianFilter(){}
+        protected override Color calculateNewPixelColor(Bitmap sourceImage, int x, int y)
+        {
+
+
+            List<int> R = new List<int>();
+            List<int> G = new List<int>();
+            List<int> B = new List<int>();
+
+            for (int l = -3; l <= 3; ++l)
+                for (int k = -3; k <= 3; ++k)
+                {
+                    int idX = Clamp(x + k, 0, sourceImage.Width - 1);
+                    int idY = Clamp(y + l, 0, sourceImage.Height - 1);
+                    R.Add(sourceImage.GetPixel(idX, idY).R);
+                    G.Add(sourceImage.GetPixel(idX, idY).G);
+                    B.Add(sourceImage.GetPixel(idX, idY).B);
+                }
+            R.Sort();
+            G.Sort();
+            B.Sort();
+
+            return Color.FromArgb(R[R.Count / 2], G[G.Count / 2], B[B.Count / 2]);
+        }
+    }
+    class StretchingFilter : Filters
+    {
+        protected override Color calculateNewPixelColor(Bitmap sourceImage, int x, int y)
+        {
+            Color source = sourceImage.GetPixel(x, y);
+            byte intensity = (byte)(((0.2125 * source.R + 0.7154 * source.G + 0.0721 * source.B) / 3));
+            return Color.FromArgb(Clamp(source.R + intensity, 0, 255), Clamp(source.G + intensity, 0, 255), Clamp(source.B + intensity, 0, 255));
+        }
     }
 }
 

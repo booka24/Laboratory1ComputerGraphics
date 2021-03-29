@@ -14,24 +14,10 @@ namespace Laboratory_1
     public partial class Form1 : Form
     {
         Bitmap image;
+        bool can_correcting;
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void pointToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -44,16 +30,6 @@ namespace Laboratory_1
                 pictureBox1.Image = image;
                 pictureBox1.Refresh();
             }
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void filtersToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void inverseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -87,17 +63,10 @@ namespace Laboratory_1
             progressBar1.Value = 0;
         }
 
-        private void matrixToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void gaussianToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            GaussianFilter filter = new GaussianFilter();
-            Bitmap result = filter.processImage(image, backgroundWorker1);
-            pictureBox1.Image = result;
-            pictureBox1.Refresh();
+            Filters filter = new GaussianFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
         }
 
         private void backgroundWorker1_ProgressChanged_1(object sender, ProgressChangedEventArgs e)
@@ -115,9 +84,110 @@ namespace Laboratory_1
             progressBar1.Value = 0;
         }
 
-        private void progressBar1_Click(object sender, EventArgs e)
+        private void grayWorldToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Filters filter = new GrayWorldFilter(image);
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
 
+        private void blurToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new BlurFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void grayscaleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new GrayscaleFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void verticalWavesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new VerticalWavesFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void sharpnessToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new SharpnessFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void glassToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new GlassFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void horizontalWavesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new HorizontalWavesFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void sepiaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters sepia = new SepiaFilter();
+            backgroundWorker1.RunWorkerAsync(sepia);
+        }
+
+        private void openingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new Opening();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void closingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new Closing();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void gradToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new Dilation();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void erosionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new Erosion();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void gradToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Filters filter = new Grad();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void correctionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("For correction click on picture", "Message",MessageBoxButtons.OK);
+            can_correcting = true;
+        }
+
+        private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (can_correcting)
+            {
+                Filters filter = new Correcting(((Bitmap)pictureBox1.Image).GetPixel(e.Location.X, e.Location.Y));
+                backgroundWorker1.RunWorkerAsync(filter);
+                can_correcting = false;
+            }
+        }
+
+        private void medianToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new MedianFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
+        }
+
+        private void streeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Filters filter = new StretchingFilter();
+            backgroundWorker1.RunWorkerAsync(filter);
         }
     }
 }
